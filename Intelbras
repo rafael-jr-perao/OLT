@@ -1,0 +1,40 @@
+OLT Intelbras 8820i
+- Acessar a OLT pela porta 1 usando i IP default.
+IP Padrão: 192.168.10.1/24
+user: intelbras
+pass: intelbras
+
+- Fazer o reset e restaurar as configurações da OLT para o modo de fábrica com comando abaixo
+=> restaurar a OLT para o padrão de fábrica, será solicitado algumas confirmações, sequencia: yes, yes, yes, no, yes
+OLT-Intelbras> set2default
+
+
+- Definir a porta uplink e ID de VLAN que será conectado o concentrador esconhendo entre a porta 2 até a porta 8
+OLT-Intelbras> bridge add 1-1-3-0/eth uplink vlan 10 tagged
+
+- Ativar o auto provisionamento temporáriamente
+OLT-Intelbras> update cpe-cfg-global-settings auto-assign = enable 0
+- Desativar o auto provisionamento
+OLT-Intelbras> update cpe-cfg-global-settings auto-assign = disable 0
+
+- Verificar a porta da ONU que a ONU foi provisionada de forma automática
+OLT-Intelbras> onu inventory 1/1
+
+- Provisionar novamente de forma manual para o profile que melhor se adequa a ONU
+OLT-Intelbras> onu set 1-1-1-2 meprof intelbras-142ng
+
+- Adicionar a ONU na bridge com a vlan 10
+OLT-Intelbras> bridge add 1-1-1-2/gpononu downlink vlan 10 tagged rg
+
+- Verificar se foi criado a bridge para a porta 3 coma vlan 10 entre a ONU e a UPLINK porta 3
+bridge show
+
+- Deletar um a ONU 
+OLT-Intelbras> bridge delete 1-1-1-257-gponport-10/bridge
+
+- Verificar o profile da ONU provisionada
+OLT-Intelbras> onu show 1-1-1-1
+interface add 1/1/2/0/eth 172.16.1.1/30
+
+## Configurando Interface Out-Of-Band
+interface add 1/1/3/0/eth vlan 30 172.16.3.1/24
